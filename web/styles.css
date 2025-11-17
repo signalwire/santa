@@ -147,8 +147,9 @@ body {
 /* GitHub Link */
 .github-link {
     position: absolute;
-    top: 20px;
+    top: 50%;
     right: 20px;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -163,7 +164,7 @@ body {
 
 .github-link:hover {
     background: rgba(0, 0, 0, 0.5);
-    transform: translateY(-2px);
+    transform: translateY(-50%) translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
