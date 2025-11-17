@@ -36,6 +36,7 @@
                 </svg>
                 <span class="github-text">GitHub</span>
             </a>
+
             <h1 class="title-main">
                 <span class="sparkle">🎄</span>
                 Santa's Workshop
@@ -73,10 +74,20 @@
 
             <!-- Control Panel -->
             <div class="control-panel">
-                <button id="startBtn" class="btn-santa-primary">
-                    <span class="btn-icon">🎤</span>
-                    <span class="btn-text">Talk to Santa!</span>
-                </button>
+                <div class="control-group">
+                    <button id="startBtn" class="btn-santa-primary">
+                        <span class="btn-icon">🎤</span>
+                        <span class="btn-text">Talk to Santa!</span>
+                    </button>
+
+                    <!-- Settings Button -->
+                    <button class="settings-toggle" id="settingsToggle" title="Audio Settings">
+                        <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 1.54l4.24 4.24M21 12h-6m-6 0H3m13.22 4.22l4.24 4.24M1.54 21.54l4.24-4.24"></path>
+                        </svg>
+                    </button>
+                </div>
 
                 <button id="endBtn" class="btn-santa-danger" style="display: none;">
                     <span class="btn-icon">📞</span>
@@ -87,6 +98,33 @@
                     <span class="btn-icon">🔇</span>
                     <span class="btn-text">Mute</span>
                 </button>
+
+                <!-- Settings Panel -->
+                <div class="settings-panel" id="settingsPanel">
+                    <h3>🎙️ Audio Settings</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="echoCancellation" class="setting-checkbox">
+                            <span>Echo Cancellation</span>
+                        </label>
+                        <small>Reduces echo from speakers</small>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="noiseSuppression" class="setting-checkbox">
+                            <span>Noise Suppression</span>
+                        </label>
+                        <small>Filters background noise</small>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="autoGainControl" class="setting-checkbox">
+                            <span>Auto Gain Control</span>
+                        </label>
+                        <small>Adjusts microphone volume automatically</small>
+                    </div>
+                    <button class="settings-close" id="settingsClose">Close</button>
+                </div>
             </div>
 
             <!-- Status Display -->

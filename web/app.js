@@ -8,6 +8,13 @@ let client;
 let roomSession;
 let isMuted = false;
 
+// Audio settings (default all off)
+let audioSettings = {
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false
+};
+
 // Gift state
 let giftState = {
     searchQuery: '',
@@ -19,6 +26,7 @@ let giftState = {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initializeUI();
+    initializeSettings();
     createChristmasLights();
     startSnowfall();
     updateChristmasCountdown();
@@ -39,6 +47,55 @@ function initializeUI() {
     startBtn.addEventListener('click', startCall);
     endBtn.addEventListener('click', endCall);
     muteBtn.addEventListener('click', toggleMute);
+}
+
+// Initialize audio settings
+function initializeSettings() {
+    // Load saved settings from localStorage
+    const saved = localStorage.getItem('santaAudioSettings');
+    if (saved) {
+        audioSettings = JSON.parse(saved);
+    }
+
+    // Update checkboxes
+    document.getElementById('echoCancellation').checked = audioSettings.echoCancellation;
+    document.getElementById('noiseSuppression').checked = audioSettings.noiseSuppression;
+    document.getElementById('autoGainControl').checked = audioSettings.autoGainControl;
+
+    // Settings toggle button
+    const settingsToggle = document.getElementById('settingsToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsClose = document.getElementById('settingsClose');
+
+    settingsToggle.addEventListener('click', () => {
+        settingsPanel.classList.toggle('show');
+    });
+
+    settingsClose.addEventListener('click', () => {
+        settingsPanel.classList.remove('show');
+    });
+
+    // Handle checkbox changes
+    document.getElementById('echoCancellation').addEventListener('change', (e) => {
+        audioSettings.echoCancellation = e.target.checked;
+        saveSettings();
+    });
+
+    document.getElementById('noiseSuppression').addEventListener('change', (e) => {
+        audioSettings.noiseSuppression = e.target.checked;
+        saveSettings();
+    });
+
+    document.getElementById('autoGainControl').addEventListener('change', (e) => {
+        audioSettings.autoGainControl = e.target.checked;
+        saveSettings();
+    });
+}
+
+// Save settings to localStorage
+function saveSettings() {
+    localStorage.setItem('santaAudioSettings', JSON.stringify(audioSettings));
+    updateSantaMessage('Audio settings updated! Apply on next call.');
 }
 
 // Start call to Santa
@@ -75,9 +132,9 @@ async function startCall() {
             to: DESTINATION,
             rootElement: videoContainer,  // SignalWire will inject video here
             audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true
+                echoCancellation: audioSettings.echoCancellation,
+                noiseSuppression: audioSettings.noiseSuppression,
+                autoGainControl: audioSettings.autoGainControl
             },
             video: true,
             negotiateVideo: true,  // Important for video negotiation with AI agent
