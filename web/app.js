@@ -307,7 +307,6 @@ function disconnect() {
         placeholder.innerHTML = `
             <div class="santa-placeholder">
                 <div class="santa-emoji-large">🎅</div>
-                <div class="sparkles">✨</div>
                 <h3>Santa's Workshop</h3>
                 <p>Click "Talk to Santa!" to begin your magical journey</p>
                 <div class="christmas-icons">
