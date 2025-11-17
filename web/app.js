@@ -604,30 +604,11 @@ function showSearchStatus(show) {
     searchStatus.style.display = show ? 'block' : 'none';
 }
 
-// Update status display
+// Update status display (removed from UI)
 function updateStatus(state, text) {
-    const badge = document.getElementById('statusBadge');
-    const statusText = badge.querySelector('.status-text');
-    const statusIcon = badge.querySelector('.status-icon');
-
-    statusText.textContent = text;
-
-    // Update icon and color based on state
-    const states = {
-        waiting: { icon: '🎁', bgColor: 'var(--christmas-gold)', textColor: 'var(--christmas-green)' },
-        connecting: { icon: '📞', bgColor: 'var(--christmas-gold)', textColor: 'var(--christmas-green)' },
-        connected: { icon: '🎄', bgColor: 'var(--christmas-green)', textColor: 'white' },
-        searching: { icon: '🔍', bgColor: 'var(--christmas-blue)', textColor: 'white' },
-        selecting: { icon: '🎁', bgColor: 'var(--christmas-gold)', textColor: 'var(--christmas-green)' },
-        confirmed: { icon: '✨', bgColor: 'var(--christmas-red)', textColor: 'white' },
-        complete: { icon: '🎅', bgColor: 'var(--christmas-green)', textColor: 'white' },
-        error: { icon: '❌', bgColor: '#dc3545', textColor: 'white' }
-    };
-
-    const stateConfig = states[state] || states.waiting;
-    statusIcon.textContent = stateConfig.icon;
-    badge.style.background = stateConfig.bgColor;
-    badge.style.color = stateConfig.textColor;
+    // Status display has been removed from the UI
+    // Keeping function as no-op to avoid breaking existing calls
+    console.log(`Status: ${state} - ${text}`);
 }
 
 // Reset UI to initial state
