@@ -761,6 +761,12 @@ class SantaAIAgent(AgentBase):
             voice=f"elevenlabs.{voice_id}"
         )
 
+        # Optional post-prompt URL from environment
+        post_prompt_url = os.environ.get("POST_PROMPT_URL")
+        if post_prompt_url:
+            self.set_post_prompt("Summarize the conversation, including all the gifts discussed, the child's preferences, their selected gift if any, and any special mentions about their Christmas wishes.")
+            self.set_post_prompt_url(post_prompt_url)
+
         # Add speech hints for better recognition of holiday terms
         self.add_hints([
             "toy", "toys", "game", "games", "doll", "dolls",
