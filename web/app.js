@@ -10,7 +10,7 @@ let isMuted = false;
 
 // Audio settings (default all off)
 let audioSettings = {
-    echoCancellation: false,
+    echoCancellation: true,
     noiseSuppression: false,
     autoGainControl: false
 };
