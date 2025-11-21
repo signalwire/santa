@@ -114,8 +114,7 @@ async function startCall() {
 
         // Initialize SignalWire client
         client = await SignalWire.SignalWire({
-            token: STATIC_TOKEN,
-            rootElement: document.getElementById('remoteVideo')
+            token: STATIC_TOKEN
         });
 
         // Subscribe to user events at client level
