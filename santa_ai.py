@@ -4,26 +4,20 @@ Santa AI - Interactive Gift Selection Assistant
 Powered by SignalWire and RapidAPI
 """
 
-import json
 import random
 import os
 import requests
-import uvicorn
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-from signalwire_agents import AgentBase
+from typing import Dict, List
+from signalwire_agents import AgentBase, AgentServer
 from signalwire_agents.core.function_result import SwaigFunctionResult
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Try to import WebService - it may not be available in all environments
-try:
-    from signalwire_agents.web import WebService
-    HAS_WEBSERVICE = True
-except ImportError:
-    HAS_WEBSERVICE = False
+HOST = os.getenv('HOST', '0.0.0.0')
+PORT = int(os.getenv('PORT', 5000))
 
 class SantaAIAgent(AgentBase):
     """Santa Claus - Your Christmas Gift Selection Assistant"""
@@ -31,7 +25,7 @@ class SantaAIAgent(AgentBase):
     def __init__(self):
         super().__init__(
             name="Santa",
-            route="/swml",  # SWML endpoint path
+            route="/santa",
             record_call=True
         )
 
@@ -597,123 +591,6 @@ class SantaAIAgent(AgentBase):
             }
         ]
 
-    def get_app(self):
-        """
-        Override get_app to create custom app with all endpoints
-        Following the holyguacamole pattern for serving static files
-        """
-        if not hasattr(self, '_app') or self._app is None:
-            from fastapi import FastAPI, Request, Response
-            from fastapi.middleware.cors import CORSMiddleware
-            from fastapi.responses import FileResponse, JSONResponse
-            from fastapi.staticfiles import StaticFiles
-
-            # Create the FastAPI app
-            app = FastAPI(
-                title="Santa's Gift Workshop",
-                description="AI-powered Christmas gift selection with Santa Claus"
-            )
-
-            # Add CORS middleware
-            app.add_middleware(
-                CORSMiddleware,
-                allow_origins=["*"],
-                allow_credentials=True,
-                allow_methods=["*"],
-                allow_headers=["*"],
-            )
-
-            # Set up paths
-            self.bot_dir = Path(__file__).parent
-            self.web_dir = self.bot_dir / "web"
-
-            # API Routes (before static files so they take precedence)
-            @app.get("/api/info")
-            async def get_info():
-                """Provide system information"""
-                return JSONResponse(content={
-                    "agent": "Santa Claus",
-                    "version": "1.0.0",
-                    "christmas_year": self.christmas_year,
-                    "status": "Ready for Christmas wishes!",
-                    "endpoints": {
-                        "ui": "/",
-                        "swml": "/swml",
-                        "swaig": "/swml/swaig",
-                        "health": "/health"
-                    }
-                })
-
-            @app.get("/health")
-            async def health_check():
-                return JSONResponse(content={
-                    "status": "healthy",
-                    "message": "Ho ho ho! Santa is ready!"
-                })
-
-            # Create router for SWML endpoints
-            router = self.as_router()
-
-            # Mount the SWML router at /swml
-            app.include_router(router, prefix=self.route)
-
-            # Add explicit handler for /swml (without trailing slash) since SignalWire posts here
-            @app.post("/swml")
-            async def handle_swml(request: Request, response: Response):
-                """Handle POST to /swml - SignalWire's webhook endpoint"""
-                return await self._handle_root_request(request)
-
-            # Optionally also handle GET for testing
-            @app.get("/swml")
-            async def handle_swml_get(request: Request, response: Response):
-                """Handle GET to /swml for testing"""
-                return await self._handle_root_request(request)
-
-            # Mount static files at root (this handles everything else)
-            # The web directory contains all static files (HTML, JS, CSS, videos, etc.)
-            if self.web_dir.exists():
-                app.mount("/", StaticFiles(directory=str(self.web_dir), html=True), name="static")
-            else:
-                print(f"Warning: Web directory not found at {self.web_dir}")
-
-            self._app = app
-
-        return self._app
-
-    def serve(self, host=None, port=None):
-        """
-        Override serve to use our custom app with static file serving
-        """
-        import uvicorn
-
-        # Get host and port from parameters or environment
-        host = host or os.getenv('HOST', '0.0.0.0')
-        port = port or int(os.getenv('PORT', 5000))
-
-        # Get our custom app with all endpoints
-        app = self.get_app()
-
-        # Print startup information
-        print("=" * 60)
-        print("🎅 Santa's Gift Workshop - AI Assistant")
-        print("=" * 60)
-        print(f"\nServer: http://{host}:{port}")
-        print("\nEndpoints:")
-        print(f"  Web UI:     http://{host}:{port}/")
-        print(f"  System API: http://{host}:{port}/api/info")
-        print(f"  SWML:       http://{host}:{port}/swml")
-        print(f"  SWAIG:      http://{host}:{port}/swml/swaig")
-        print(f"  Health:     http://{host}:{port}/health")
-        print("=" * 60)
-        print("\n🎄 Ho ho ho! Ready for Christmas wishes! 🎄")
-        print("\nPress Ctrl+C to stop\n")
-
-        # Run the server
-        try:
-            uvicorn.run(app, host=host, port=port)
-        except KeyboardInterrupt:
-            print("\n🎅 Santa is heading back to the North Pole...")
-            print("Merry Christmas! 🎄")
 
     def on_swml_request(self, request_data: Dict, callback_path: str, request=None) -> Dict:
         """Handle incoming SWML requests and configure the AI agent"""
@@ -782,7 +659,19 @@ class SantaAIAgent(AgentBase):
         return super().on_swml_request(request_data, callback_path, request)
 
 
+def create_server():
+    """Create AgentServer with static file mounting."""
+    server = AgentServer(host=HOST, port=PORT)
+    server.register(SantaAIAgent(), "/santa")
+
+    # Serve static files using SDK's built-in method
+    web_dir = Path(__file__).parent / "web"
+    if web_dir.exists():
+        server.serve_static_files(str(web_dir))
+
+    return server
+
+
 if __name__ == "__main__":
-    # Create and start the Santa AI agent
-    agent = SantaAIAgent()
-    agent.serve()
+    server = create_server()
+    server.run()

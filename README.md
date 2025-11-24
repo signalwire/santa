@@ -61,19 +61,13 @@ pip install -r requirements.txt
 
 4. Create `.env` file:
 ```env
-# SignalWire Configuration
-SIGNALWIRE_PROJECT_ID=your_project_id
-SIGNALWIRE_TOKEN=your_auth_token
-SIGNALWIRE_SPACE=your_space.signalwire.com
-
 # RapidAPI Configuration
 RAPIDAPI_KEY=your_rapidapi_key
 RAPIDAPI_HOST=real-time-amazon-data.p.rapidapi.com
 
-# Optional: Custom domain
-HTTP_USERNAME=your_username
-HTTP_PASSWORD=your_password
-HTTP_DOMAIN=your-domain.com
+# Basic Auth for SWML endpoints (optional, but recommended for production)
+SWML_BASIC_AUTH_USER=your_username
+SWML_BASIC_AUTH_PASSWORD=your_password
 
 # Server Configuration
 PORT=5000
@@ -92,7 +86,7 @@ python santa_ai.py
    - Click "Talk to Santa!" to begin
 
 3. Configure SignalWire phone number:
-   - Point your SignalWire number to: `https://your-domain.com/swml`
+   - Point your SignalWire number to: `https://your-domain.com/santa`
    - Set the webhook type to "Voice"
 
 ## 🎁 Usage Guide
@@ -117,16 +111,15 @@ python santa_ai.py
 
 ## 🛠️ Architecture
 
-### Backend (Python/FastAPI)
+### Backend (Python/SignalWire Agents SDK)
 ```
 santa_ai.py
-├── SantaAI class (SignalWire AI Agent)
-├── SWAIG Functions
-│   ├── search_gifts()
-│   ├── select_gift()
-│   └── check_nice_list()
-├── RapidAPI Integration
-└── WebSocket Communication
+├── SantaAIAgent class (AgentBase)
+│   ├── search_gifts()      # SWAIG function
+│   ├── select_gift()       # SWAIG function
+│   └── check_nice_list()   # SWAIG function
+├── create_server()         # AgentServer setup
+└── RapidAPI Integration
 ```
 
 ### Frontend (HTML/CSS/JavaScript)
@@ -154,9 +147,9 @@ dokku apps:create santa-ai
 
 2. Set environment variables:
 ```bash
-dokku config:set santa-ai SIGNALWIRE_PROJECT_ID=xxx
-dokku config:set santa-ai SIGNALWIRE_TOKEN=xxx
 dokku config:set santa-ai RAPIDAPI_KEY=xxx
+dokku config:set santa-ai SWML_BASIC_AUTH_USER=xxx
+dokku config:set santa-ai SWML_BASIC_AUTH_PASSWORD=xxx
 ```
 
 3. Deploy:
@@ -217,20 +210,16 @@ for i, product in enumerate(products[:4], 1):  # Shows 4 products
 
 ### API Endpoints
 
-**POST /swml**
+**POST /santa**
 - Receives SignalWire AI Agent requests
 - Returns SWML instructions
 
-**GET /swml**
+**GET /santa**
 - Alternative webhook endpoint for SignalWire
 
 **GET /health**
-- Health check endpoint
+- Health check endpoint (provided by AgentServer)
 - Returns: `{"status": "healthy"}`
-
-**GET /api/info**
-- System information endpoint
-- Returns API version and status
 
 ### Frontend Events
 
