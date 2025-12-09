@@ -113,9 +113,16 @@ async function startCall() {
         updateStatus('connecting', '🎅 Connecting to Santa...');
 
         // Initialize SignalWire client
-        client = await SignalWire.SignalWire({
-            token: STATIC_TOKEN
-        });
+        if (window.SignalWire && typeof window.SignalWire.SignalWire === 'function') {
+            console.log('Initializing SignalWire client...');
+            client = await window.SignalWire.SignalWire({
+                token: STATIC_TOKEN,
+                logLevel: 'debug'
+            });
+        } else {
+            console.error('SignalWire SDK structure:', window.SignalWire);
+            throw new Error('SignalWire.SignalWire function not found');
+        }
 
         // Subscribe to user events at client level
         client.on('user_event', (params) => {
